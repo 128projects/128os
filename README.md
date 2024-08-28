@@ -17,4 +17,5 @@ You need an bootloader for this thing, I recommend the one from OSDev
 
 
 StarOS Team
+
 delta, konada, na69
