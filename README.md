@@ -6,7 +6,7 @@ Here are compilation instructions:
 
 Git clone this repo
 
-cd into the kernel folder
+cd into staros/kernel
 
 To compile:
 
