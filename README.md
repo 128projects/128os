@@ -2,12 +2,11 @@ Welcome to StarOS, an independent UNIX Operating System.
 You probably are wondering how do I boot this thing if you are here
 
 Here are compilation instructions:
+(You need an i686 cross-compiler)
 
 Git clone this repo
 
-Go to kernel
-
-You need an i686 cross-compiler
+cd into the kernel folder
 
 To compile:
 
