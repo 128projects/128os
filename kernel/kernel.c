@@ -1,13 +1,7 @@
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
-#if defined(__linux__)
-#error "You are not using a cross-compiler, you will most certainly run into trouble"
-#endif
-
-#if !defined(__i386__)
-#error "This needs to be compiled with a ix86-elf compiler"
-#endif
 
 enum vga_color {
     VGA_COLOR_BLACK = 0,
@@ -41,7 +35,7 @@ static inline uint16_t vga_entry(unsigned char uc, uint8_t color)
 size_t strlen(const char* str) 
 {
     size_t len = 0;
-    while (str[len] != '\0')
+    while (str[len])
         len++;
     return len;
 }
@@ -73,19 +67,19 @@ void terminal_setcolor(uint8_t color)
     terminal_color = color;
 }
 
+void terminal_putentryat(char c, uint8_t color, size_t x, size_t y) 
+{
+    const size_t index = y * VGA_WIDTH + x;
+    terminal_buffer[index] = vga_entry(c, color);
+}
+
 void terminal_putchar(char c) 
 {
-    if (c == '\n') {
+    terminal_putentryat(c, terminal_color, terminal_column, terminal_row);
+    if (++terminal_column == VGA_WIDTH) {
         terminal_column = 0;
         if (++terminal_row == VGA_HEIGHT)
             terminal_row = 0;
-    } else {
-        terminal_buffer[terminal_row * VGA_WIDTH + terminal_column] = vga_entry(c, terminal_color);
-        if (++terminal_column == VGA_WIDTH) {
-            terminal_column = 0;
-            if (++terminal_row == VGA_HEIGHT)
-                terminal_row = 0;
-        }
     }
 }
 
@@ -100,17 +94,60 @@ void terminal_writestring(const char* data)
     terminal_write(data, strlen(data));
 }
 
-const char* staros_art = 
-"  _________ __               ________    _________\n"
-" /   _____//  |______ _______\\_____  \\  /   _____/\n"
-" \\_____  \\   __\\__  \\_  __ \\/   |   \\ \\_____  \\\n"
-" /        \\|  |  / __ \\|  | \\/    |    \\/        \\\n"
-"/_______  /|__| (____  /__|  \\_______  /_______  /\n"
-"        \\/           \\/           \\/        \\/ \n";
+static unsigned int seed = 12345;
+unsigned int rand(void) {
+    seed = seed * 1103515245 + 12345;
+    return (seed / 65536) % 32768;
+}
+
+char random_char(void) {
+    const char charset[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    return charset[rand() % (sizeof(charset) - 1)];
+}
+
+void cmatrix_effect(void) {
+    size_t col_positions[VGA_WIDTH];
+    size_t col_speeds[VGA_WIDTH];
+
+    /* Initialize column positions and speeds */
+    for (size_t i = 0; i < VGA_WIDTH; i++) {
+        col_positions[i] = 0;
+        col_speeds[i] = 0;
+    }
+
+    for (size_t i = 0; i < VGA_WIDTH; i++) {
+        col_positions[i] = rand() % VGA_HEIGHT;
+        col_speeds[i] = rand() % 5 + 1;  /* Speed between 1 and 5 */
+    }
+
+    const char* message = "STAROS PREALPHA";
+    size_t message_len = strlen(message);
+    size_t message_x = (VGA_WIDTH - message_len) / 2;
+    size_t message_y = VGA_HEIGHT / 2;
+
+    while (true) {
+        for (size_t x = 0; x < VGA_WIDTH; x++) {
+            if (x >= message_x && x < message_x + message_len && col_positions[x] == message_y) {
+                terminal_putentryat(message[x - message_x], vga_entry_color(VGA_COLOR_GREEN, VGA_COLOR_BLACK), x, col_positions[x]);
+            } else {
+                terminal_putentryat(' ', terminal_color, x, (col_positions[x] + VGA_HEIGHT - col_speeds[x]) % VGA_HEIGHT);
+                col_positions[x] = (col_positions[x] + 1) % VGA_HEIGHT;
+                terminal_putentryat(random_char(), vga_entry_color(VGA_COLOR_GREEN, VGA_COLOR_BLACK), x, col_positions[x]);
+            }
+        }
+
+        /* Simple delay loop */
+        for (volatile int i = 0; i < 100000; i++);
+    }
+}
 
 void kernel_main(void) 
 {
     terminal_initialize();
+
+    cmatrix_effect();
+}
+
     terminal_setcolor(vga_entry_color(VGA_COLOR_BLUE, VGA_COLOR_BLACK));
     terminal_writestring(staros_art);
 }
