@@ -109,7 +109,6 @@ void cmatrix_effect(void) {
     size_t col_positions[VGA_WIDTH];
     size_t col_speeds[VGA_WIDTH];
 
-    /* Initialize column positions and speeds */
     for (size_t i = 0; i < VGA_WIDTH; i++) {
         col_positions[i] = 0;
         col_speeds[i] = 0;
@@ -117,7 +116,7 @@ void cmatrix_effect(void) {
 
     for (size_t i = 0; i < VGA_WIDTH; i++) {
         col_positions[i] = rand() % VGA_HEIGHT;
-        col_speeds[i] = rand() % 5 + 1;  /* Speed between 1 and 5 */
+        col_speeds[i] = rand() % 5 + 1;  
     }
 
     const char* message = "STAROS PREALPHA";
@@ -136,7 +135,6 @@ void cmatrix_effect(void) {
             }
         }
 
-        /* Simple delay loop */
         for (volatile int i = 0; i < 100000; i++);
     }
 }
@@ -148,6 +146,3 @@ void kernel_main(void)
     cmatrix_effect();
 }
 
-    terminal_setcolor(vga_entry_color(VGA_COLOR_BLUE, VGA_COLOR_BLACK));
-    terminal_writestring(staros_art);
-}
