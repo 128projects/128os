@@ -1,4 +1,4 @@
-![StarOS logo](https://github.com/user-attachments/assets/754822d5-2fb1-43f2-8fd1-e4e59e611bc9)
+![StarOS logo gradient512](https://github.com/user-attachments/assets/28b45df9-b29f-4e11-9fe7-34c815bcda24)
 
 Welcome to StarOS, an independent UNIX Operating System.
 You're probably wondering how to boot this thing if you're reading this.
