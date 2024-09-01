@@ -101,7 +101,7 @@ unsigned int rand(void) {
 }
 
 char random_char(void) {
-    const char charset[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxy";
+    const char charset[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     return charset[rand() % (sizeof(charset) - 1)];
 }
 
