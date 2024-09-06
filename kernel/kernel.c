@@ -2,7 +2,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-
 enum vga_color {
     VGA_COLOR_BLACK = 0,
     VGA_COLOR_BLUE = 1,
@@ -22,17 +21,17 @@ enum vga_color {
     VGA_COLOR_WHITE = 15,
 };
 
-static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) 
+static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg)
 {
     return fg | bg << 4;
 }
 
-static inline uint16_t vga_entry(unsigned char uc, uint8_t color) 
+static inline uint16_t vga_entry(unsigned char uc, uint8_t color)
 {
     return (uint16_t) uc | (uint16_t) color << 8;
 }
 
-size_t strlen(const char* str) 
+size_t strlen(const char* str)
 {
     size_t len = 0;
     while (str[len])
@@ -48,7 +47,7 @@ size_t terminal_column;
 uint8_t terminal_color;
 uint16_t* terminal_buffer;
 
-void terminal_initialize(void) 
+void terminal_initialize(void)
 {
     terminal_row = 0;
     terminal_column = 0;
@@ -62,18 +61,18 @@ void terminal_initialize(void)
     }
 }
 
-void terminal_setcolor(uint8_t color) 
+void terminal_setcolor(uint8_t color)
 {
     terminal_color = color;
 }
 
-void terminal_putentryat(char c, uint8_t color, size_t x, size_t y) 
+void terminal_putentryat(char c, uint8_t color, size_t x, size_t y)
 {
     const size_t index = y * VGA_WIDTH + x;
     terminal_buffer[index] = vga_entry(c, color);
 }
 
-void terminal_putchar(char c) 
+void terminal_putchar(char c)
 {
     terminal_putentryat(c, terminal_color, terminal_column, terminal_row);
     if (++terminal_column == VGA_WIDTH) {
@@ -83,66 +82,105 @@ void terminal_putchar(char c)
     }
 }
 
-void terminal_write(const char* data, size_t size) 
+void terminal_write(const char* data, size_t size)
 {
     for (size_t i = 0; i < size; i++)
         terminal_putchar(data[i]);
 }
 
-void terminal_writestring(const char* data) 
+void terminal_writestring(const char* data)
 {
     terminal_write(data, strlen(data));
 }
 
-static unsigned int seed = 12345;
-unsigned int rand(void) {
-    seed = seed * 1103515245 + 12345;
-    return (seed / 65536) % 32768;
+void display_staros(void) {
+    const char* staros_message = "StarOS *";
+    size_t message_len = strlen(staros_message);
+    size_t x = VGA_WIDTH - message_len;
+    size_t y = 0;
+
+    uint8_t staros_color = vga_entry_color(VGA_COLOR_WHITE, VGA_COLOR_BLUE);
+
+    for (size_t i = 0; i < message_len; i++) {
+        terminal_putentryat(staros_message[i], staros_color, x + i, y);
+    }
+    terminal_row = 2;
 }
 
-char random_char(void) {
-    const char charset[] = "STAROS";
-    return charset[rand() % (sizeof(charset) - 1)];
-}
 
-void cmatrix_effect(void) {
-    size_t col_positions[VGA_WIDTH];
-    size_t col_speeds[VGA_WIDTH];
+void memtest(void) {
+    uint32_t* mem_start = (uint32_t*) 0x500000;
+    uint32_t* mem_end = (uint32_t*) 0x600000;
+    uint32_t test_pattern = 0xAA55AA55;
+    uint32_t test_pattern_inv = ~test_pattern;
 
-    for (size_t i = 0; i < VGA_WIDTH; i++) {
-        col_positions[i] = 0;
-        col_speeds[i] = 0;
+    terminal_writestring("Running memory test on 5MB-6MB...\n");
+
+    for (uint32_t* addr = mem_start; addr < mem_end; addr++) {
+        *addr = test_pattern;
     }
 
-    for (size_t i = 0; i < VGA_WIDTH; i++) {
-        col_positions[i] = rand() % VGA_HEIGHT;
-        col_speeds[i] = rand() % 5 + 1;  
-    }
+    terminal_writestring("Pass 1: Writing test pattern\n");
 
-    const char* message = "STAROS PREALPHA";
-    size_t message_len = strlen(message);
-    size_t message_x = (VGA_WIDTH - message_len) / 2;
-    size_t message_y = VGA_HEIGHT / 2;
-
-    while (true) {
-        for (size_t x = 0; x < VGA_WIDTH; x++) {
-            if (x >= message_x && x < message_x + message_len && col_positions[x] == message_y) {
-                terminal_putentryat(message[x - message_x], vga_entry_color(VGA_COLOR_GREEN, VGA_COLOR_BLACK), x, col_positions[x]);
-            } else {
-                terminal_putentryat(' ', terminal_color, x, (col_positions[x] + VGA_HEIGHT - col_speeds[x]) % VGA_HEIGHT);
-                col_positions[x] = (col_positions[x] + 1) % VGA_HEIGHT;
-                terminal_putentryat(random_char(), vga_entry_color(VGA_COLOR_GREEN, VGA_COLOR_BLACK), x, col_positions[x]);
-            }
+    for (uint32_t* addr = mem_start; addr < mem_end; addr++) {
+        if (*addr != test_pattern) {
+            terminal_writestring("Error at address: ");
+            char buffer[16];
+            itoa((unsigned int)addr, buffer, 16);
+            terminal_writestring(buffer);
+            terminal_writestring("\n");
+            return;
         }
+    }
 
-        for (volatile int i = 0; i < 100000; i++);
+    terminal_writestring("Pass 2: Inverting test pattern\n");
+
+    for (uint32_t* addr = mem_start; addr < mem_end; addr++) {
+
+        *addr = test_pattern_inv;
+    }
+
+    for (uint32_t* addr = mem_start; addr < mem_end; addr++) {
+
+        if (*addr != test_pattern_inv) {
+            terminal_writestring("Error at address: ");
+            char buffer[16];
+            itoa((unsigned int)addr, buffer, 16);
+            terminal_writestring(buffer);
+            terminal_writestring("\n");
+            return;
+        }
+    }
+
+    terminal_writestring("Memory test passed successfully.\n");
+}
+
+
+void itoa(unsigned int value, char* str, int base) {
+    char* ptr = str, *ptr1 = str, tmp_char;
+    int tmp_value;
+    do {
+        tmp_value = value;
+        value /= base;
+        *ptr++ = "0123456789abcdef"[tmp_value - value * base];
+    } while (value);
+
+    *ptr-- = '\0';
+    while (ptr1 < ptr) {
+        tmp_char = *ptr;
+        *ptr-- = *ptr1;
+        *ptr1++ = tmp_char;
     }
 }
 
-void kernel_main(void) 
+void kernel_main(void)
 {
+
     terminal_initialize();
 
-    cmatrix_effect();
-}
 
+    display_staros();
+
+
+    memtest();
+}
