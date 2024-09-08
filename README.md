@@ -1,6 +1,7 @@
-![StarOS logo gradient512](https://github.com/user-attachments/assets/28b45df9-b29f-4e11-9fe7-34c815bcda24)
+![StarOS logo gradient512](https://avatars.githubusercontent.com/u/179967275?s=400&u=6c9b057e9f17ac51d42c932d06e1f4b376e67118&v=4)
 
 Welcome to 128OS, an independent UNIX Operating System.
+Current newest version of 128OS is StarOS/128OS Prealpha 0.0.3
 You're probably wondering how to boot this thing if you're reading this.
 
 
@@ -9,7 +10,7 @@ Here are compilation instructions:
 
 Git clone this repo
 
-cd into staros/kernel
+cd into 128os/kernel
 
 To compile:
 
@@ -17,10 +18,6 @@ To compile:
 
 You need a bootloader for this thing, I recommend the one from OSDev.
 
-Here's StarOS v0.0.2 pre-alpha running in QEMU (StarOS/128OS PreAlpha 0.0.3 came out, install it)
-![image](https://avatars.githubusercontent.com/u/179967275?s=400&u=6c9b057e9f17ac51d42c932d06e1f4b376e67118&v=4)
-
-
-StarOS Team
+128OS Team
 
 delta, konada, na69
