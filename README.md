@@ -18,7 +18,7 @@ To compile:
 You need a bootloader for this thing, I recommend the one from OSDev.
 
 Here's StarOS v0.0.2 pre-alpha running in QEMU (StarOS/128OS PreAlpha 0.0.3 came out, install it)
-![image](https://github.com/user-attachments/assets/fd48010d-37c4-4dea-8489-d9b283be6ca3)
+![image](https://avatars.githubusercontent.com/u/179967275?s=400&u=6c9b057e9f17ac51d42c932d06e1f4b376e67118&v=4)
 
 
 StarOS Team
