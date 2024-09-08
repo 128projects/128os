@@ -94,7 +94,7 @@ void terminal_writestring(const char* data)
 }
 
 void display_staros(void) {
-    const char* staros_message = "StarOS *";
+    const char* staros_message = "128OS";
     size_t message_len = strlen(staros_message);
     size_t x = VGA_WIDTH - message_len;
     size_t y = 0;
