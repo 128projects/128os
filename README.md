@@ -1,5 +1,4 @@
-![128os Logo](https://github.com/user-attachments/assets/4047cf31-b409-4fb3-ad28-64306c692780)
-
+![128os Logo](https://github.com/user-attachments/assets/afeb8fdd-37b9-45e0-a8e2-38c9e8a0f1ac)
 
 Welcome to 128OS, an independent UNIX Operating System.
 Current newest version of 128OS is StarOS/128OS Prealpha 0.0.3
