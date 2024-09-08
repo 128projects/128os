@@ -20,4 +20,4 @@ You need a bootloader for this thing, I recommend the one from OSDev.
 
 128OS Team
 
-delta, konada, na69
+delta, konada
