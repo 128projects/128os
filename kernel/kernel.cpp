@@ -1,7 +1,7 @@
 #include <stdint.h>
-#include "io.h"
-#include "terminal.h"
-#include "keyboard.h"
+#include "../drivers/io.h"
+#include "../drivers/terminal.h"
+#include "../drivers/keyboard.h"
 
 void test_virtual_memory() {
     volatile uint32_t *ptr = (uint32_t *)0x1000;  
