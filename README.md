@@ -31,7 +31,7 @@ Now go back a directory again and cd into the bootloader directory
 
 Go back a directory again, stay here
 
-`ld -T link.ld -m elf_i386 -o kernel.bin bootloader/boot.o kernel/kernel.o drivers/terminal.o drivers/keyboard.o --nostdlib`
+`gcc -T link.ld -m32 -o kernel.bin bootloader/boot.o ~/128os/kernel/128os/kernel/128os/128os/kernel/kernel.o drivers/terminal.o drivers/keyboard.o -nostdlib -lc`
 
 128OS Team
 
