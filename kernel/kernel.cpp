@@ -1,33 +1,40 @@
+#include <stdint.h>
 #include "../drivers/io.h"
+#include "../drivers/terminal.h"
 #include "../drivers/keyboard.h"
 
-#define KEYBOARD_DATA_PORT 0x60
-#define KEYBOARD_STATUS_PORT 0x64
+void test_virtual_memory() {
+    volatile uint32_t *ptr = (uint32_t *)0x1000; 
+    *ptr = 0xDEADBEEF;                          
+    uint32_t value = *ptr;                       
 
-static const char scancode_table[] = {
-    0, 27, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b',
-    '\t', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',
-    0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'', '`', 0, '\\',
-    'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 0, '*', 0, ' '
-};
-
-void keyboard_init() {
-    // Reset the keyboard
-    outb(KEYBOARD_STATUS_PORT, 0xFF);
+    if (value == 0xDEADBEEF) {
+        terminal_write("Virtual memory test passed.\n");
+    } else {
+        terminal_write("Virtual memory test failed.\n");
+    }
 }
 
-char keyboard_getchar() {
-    char scancode = 0;
-    
+extern "C" void kernel_main() {
+    terminal_initialize(); 
+
+    terminal_write("Testing virtual memory...\n");
+    test_virtual_memory();
+
+    terminal_write("Initializing keyboard...\n");
+    keyboard_init();
+
+    terminal_write("Echo terminal:\n");
+
     while (1) {
-        // Check if the keyboard has sent data
-        if (inb(KEYBOARD_STATUS_PORT) & 0x01) {
-            scancode = inb(KEYBOARD_DATA_PORT);
-            if (scancode > 0 && scancode < 58) {
-                return scancode_table[scancode];
-            }
+        char c = keyboard_getchar();  
+
+        terminal_putchar(c);
+
+        if (c == '\n') {
+            terminal_write("Enter pressed. You can keep typing...\n");
         }
     }
-    return 0;  
-}
 
+    while (1);
+}
